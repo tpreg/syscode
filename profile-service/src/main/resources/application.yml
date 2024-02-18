@@ -15,3 +15,7 @@ spring:
     change-log: classpath:/db/changelog/db.changelog-master.xml
   h2:
     console.enabled: true
+
+my:
+  security:
+    auth-details: tpreg:s3cr3t

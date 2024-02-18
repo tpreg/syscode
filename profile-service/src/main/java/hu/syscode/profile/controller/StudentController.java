@@ -1,6 +1,7 @@
 package hu.syscode.profile.controller;
 
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,10 +20,17 @@ import org.springframework.web.bind.annotation.RestController;
 import hu.syscode.profile.dto.ResponseDTO;
 import hu.syscode.profile.dto.StudentDTO;
 import hu.syscode.profile.service.StudentService;
-import reactor.core.publisher.Mono;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("api/students")
+@Tag(name = "Student", description = "The Student API")
 public class StudentController {
 
 	private final StudentService studentService;
@@ -33,39 +41,44 @@ public class StudentController {
 	}
 
 	@GetMapping("/")
-	public ResponseEntity<List<StudentDTO>> listStudents() {
-		return ResponseEntity.ok(this.studentService.getStudents());
+	@Operation(summary = "Get a list of students", responses = {
+			@ApiResponse(responseCode = "200", description = "Successfully retrieved the list", content = {
+					@Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = ResponseDTO.class)) }) })
+	public ResponseEntity<List<ResponseDTO>> listStudents() {
+		final var students = this.studentService.getAllStudents();
+		return ResponseEntity.ok(students);
 	}
 
 	@PostMapping("/")
-	public ResponseEntity<StudentDTO> saveStudent(@RequestBody final StudentDTO studentDTO) {
-		return new ResponseEntity<>(this.studentService.saveStudent(studentDTO), CREATED);
-	}
-
-	@GetMapping("/{id}")
-	public ResponseEntity<StudentDTO> getStudent(@PathVariable final UUID id) {
-		return ResponseEntity.ok(this.studentService.getStudentById(id));
-	}
-
-	@GetMapping("/{id}/address")
-	public Mono<ResponseEntity<StudentDTO>> getStudentWithAddress(@PathVariable final UUID id) {
-		return this.studentService.getStudentById(id) //
-				.flatMap(studentDTO -> this.studentService.getAddress(UUID.randomUUID().toString()) //
-						.map(addressDTO -> {
-							final ResponseDTO responseDTO = new ResponseDTO(studentDTO, addressDTO);
-							return ResponseEntity.ok(responseDTO);
-						})) //
-				.defaultIfEmpty(ResponseEntity.notFound().build());
+	@Operation(summary = "Create a new student", responses = {
+			@ApiResponse(responseCode = "201", description = "Successfully created a new student", content = {
+					@Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = StudentDTO.class)) }),
+			@ApiResponse(responseCode = "400", description = "Invalid data supplied", content = @Content) })
+	public ResponseEntity<StudentDTO> saveStudent(@Valid @RequestBody final StudentDTO studentDTO) {
+		final var savedStudentDTO = this.studentService.saveStudent(studentDTO);
+		return new ResponseEntity<>(savedStudentDTO, CREATED);
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<StudentDTO> updateStudent(@PathVariable final UUID id, @RequestBody final StudentDTO studentDTO) {
-		return ResponseEntity.ok(this.studentService.updateStudentById(id, studentDTO));
+	@Operation(summary = "Update a student by its id", responses = {
+			@ApiResponse(responseCode = "200", description = "Successfully updated a student", content = {
+					@Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(implementation = StudentDTO.class)) }),
+			@ApiResponse(responseCode = "400", description = "Invalid id supplied; Invalid data supplied", content = @Content),
+			@ApiResponse(responseCode = "404", description = "Student not found", content = @Content) })
+	public ResponseEntity<StudentDTO> updateStudent(
+			@Parameter(name = "id", description = "id of the student to be updated") @PathVariable final UUID id,
+			@Valid @RequestBody final StudentDTO studentDTO) {
+		final var updatedStudentDTO = this.studentService.updateStudentById(id, studentDTO);
+		return ResponseEntity.ok(updatedStudentDTO);
 	}
 
 	@DeleteMapping("/{id}")
-	public void deleteStudent(@PathVariable final UUID id) {
+	@Operation(summary = "Delete a student by its id", responses = {
+			@ApiResponse(responseCode = "204", description = "Successfully deleted a student", content = { @Content(mediaType = APPLICATION_JSON_VALUE) }) })
+	public ResponseEntity<Void> deleteStudent(
+			@Parameter(name = "id", description = "id of the student to be deleted") @PathVariable final UUID id) {
 		this.studentService.deleteStudentById(id);
+		return ResponseEntity.noContent().build();
 	}
 
 }

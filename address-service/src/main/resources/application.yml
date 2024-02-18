@@ -4,3 +4,11 @@ server:
 spring:
   application:
     name: address-service
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+  jpa:
+    database-platform: none
+
+credentials:
+  user: "tpreg"
+  password: "s3cr3t"

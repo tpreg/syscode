@@ -16,7 +16,8 @@ public class AddressServiceImpl implements AddressService {
 
 	@Override
 	public AddressDTO getAddressById(final UUID addressId) {
-		return MAPPER.toDto(new Address(addressId, "Kossuth utca 12/A"));
+		final var addressRecord = new Address(addressId, "Kossuth utca 12.");
+		return MAPPER.convertToDtoFromEntity(addressRecord);
 	}
 
 }

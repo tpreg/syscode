@@ -1,23 +1,13 @@
 package hu.syscode.profile.dto;
 
+import static hu.syscode.profile.util.Constants.OWASP_EMAIL_REGEX;
+
 import java.util.UUID;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class StudentDTO {
-
-	private UUID id;
-
-	private String fullName;
-
-	private String emailAddress;
+public record StudentDTO(UUID id, @NotBlank String fullName, @Email(regexp = OWASP_EMAIL_REGEX) @NotBlank String emailAddress) {
 
 }
 

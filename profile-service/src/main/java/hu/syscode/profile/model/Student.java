@@ -1,6 +1,12 @@
 package hu.syscode.profile.model;
 
+import static hu.syscode.profile.util.Constants.OWASP_EMAIL_REGEX;
+import static lombok.AccessLevel.PROTECTED;
+import static org.springframework.util.Assert.notNull;
+
+import java.util.Objects;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,17 +19,13 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
+@Getter
+@NoArgsConstructor(access = PROTECTED)
+@AllArgsConstructor
 @Entity
 @Table(name = "student")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class Student {
-
-	public static final String OWASP_EMAIL_REGEX = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}$";
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
@@ -38,6 +40,20 @@ public class Student {
 	@NotBlank
 	@Column(name = "email_address", nullable = false, unique = true)
 	private String emailAddress;
+
+	public void update(final String fullName, final String emailAddress) {
+		notNull(fullName, "fullName is null");
+		notNull(emailAddress, "emailAddress is null");
+		final var owaspEmailPattern = Pattern.compile(OWASP_EMAIL_REGEX);
+		if (!owaspEmailPattern.matcher(emailAddress).matches()) {
+			throw new IllegalArgumentException("Invalid email address");
+		}
+		if (Objects.equals(this.fullName, fullName) && Objects.equals(this.emailAddress, emailAddress)) {
+			return;
+		}
+		this.fullName = fullName;
+		this.emailAddress = emailAddress;
+	}
 
 }
 

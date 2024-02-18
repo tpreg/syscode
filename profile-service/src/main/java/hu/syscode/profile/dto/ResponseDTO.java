@@ -1,18 +1,8 @@
 package hu.syscode.profile.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
-@Setter
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-public class ResponseDTO {
-
-	private StudentDTO studentDTO;
-
-	private AddressDTO addressDTO;
+public record ResponseDTO(@Valid @NotNull StudentDTO studentDTO, @Valid @NotNull AddressDTO addressDTO) {
 
 }

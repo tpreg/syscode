@@ -11,8 +11,8 @@ public interface MapStructConverter {
 
 	MapStructConverter MAPPER = Mappers.getMapper(MapStructConverter.class);
 
-	Address toEntity(final AddressDTO addressDTO);
+	Address convertToEntityFromDto(final AddressDTO addressDTO);
 
-	AddressDTO toDto(final Address student);
+	AddressDTO convertToDtoFromEntity(final Address address);
 
 }

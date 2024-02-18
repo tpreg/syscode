@@ -2,19 +2,8 @@ package hu.syscode.profile.dto;
 
 import java.util.UUID;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
 
-@Setter
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
-public class AddressDTO {
-
-	private UUID id;
-
-	private String address;
+public record AddressDTO(UUID id, @NotBlank String address) {
 
 }
